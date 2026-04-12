@@ -1,44 +1,53 @@
 package com.springdemo.project.v1.controller;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.*;
+import com.springdemo.project.v1.entity.Student;
+import com.springdemo.project.v1.service.StudentService;
+import jakarta.validation.Valid;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
-
-import com.springdemo.project.v1.entity.Student;
-import com.springdemo.project.v1.repository.StudentRepository;
 
 @RestController
 @RequestMapping("/students")
 public class StudentController {
 
-    @Autowired
-    private StudentRepository repo;
-    
-    @PostMapping("/add")
-    public Student addStudent(@RequestBody Student student) {
-        return repo.save(student);
+    private final StudentService service;
+
+    public StudentController(StudentService service) {
+        this.service = service;
     }
 
-    @GetMapping("/all")
-    public List<Student> getAll() {
-        return repo.findAll();
+    @GetMapping
+    public List<Student> getAllStudents() {
+        return service.getAllStudents();
     }
 
-    @GetMapping("/{id}")
-    public Student getById(@PathVariable int id) {
-        return repo.findById(id).orElse(null);
+    @GetMapping("/{rollNo}")
+    public Student getStudent(@PathVariable Integer rollNo) {
+        return service.getStudentDetail(rollNo);
     }
 
-    @DeleteMapping("/{id}")
-    public String delete(@PathVariable int id) {
-        repo.deleteById(id);
+    @PostMapping
+    public Student addStudent(@Valid @RequestBody Student student) {
+        return service.saveNewEntryOfStudent(student);
+    }
+
+    @PutMapping("/{rollNo}")
+    public Student updateStudent(@PathVariable Integer rollNo,
+                                 @Valid @RequestBody Student student) {
+        return service.updateStudentRecord(rollNo, student);
+    }
+
+    @DeleteMapping("/{rollNo}")
+    public String delete(@PathVariable Integer rollNo) {
+        service.deleteStudentRecordById(rollNo);
         return "Deleted";
     }
-
-    @GetMapping("/test")
-    public String test() {
-        return "Day 19 started";
-    }
-
 }
