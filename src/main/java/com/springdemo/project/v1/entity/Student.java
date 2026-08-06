@@ -39,4 +39,11 @@ public class Student {
     public void setName(String name) {
         this.name = name;
     }
+
+    public Student(
+            @NotNull(message = "Roll number cannot be null") @Min(value = 1, message = "Roll number must be greater than 0") Integer rollNo,
+            @NotBlank(message = "Name cannot be empty") @Size(min = 2, message = "Name must have at least 2 characters") String name) {
+        this.rollNo = rollNo;
+        this.name = name;
+    }
 }
