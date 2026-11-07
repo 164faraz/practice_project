@@ -10,6 +10,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.server.ResponseStatusException;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
@@ -42,6 +44,10 @@ public class StudentController {
     @PutMapping("/{rollNo}")
     public Student updateStudent(@PathVariable Integer rollNo,
                                  @Valid @RequestBody Student student) {
+        if (!rollNo.equals(student.getRollNo())) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                    "Path roll number must match request body roll number");
+        }
         return service.updateStudentRecord(rollNo, student);
     }
 
