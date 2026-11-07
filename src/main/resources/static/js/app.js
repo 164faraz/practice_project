@@ -35,14 +35,6 @@ function fullName(student) {
   return student.name || [student.firstName, student.lastName].filter(Boolean).join(' ');
 }
 
-function renderPublicStudents() {
-  const body = $('#public-students');
-  if (!body) return;
-  const query = ($('#public-search')?.value || '').trim().toLowerCase();
-  const filtered = students.filter(s => [s.rollNo, fullName(s), s.email].some(v => String(v ?? '').toLowerCase().includes(query)));
-  body.innerHTML = filtered.length ? filtered.map(s => `<tr><td class="roll-cell">${escapeHtml(s.rollNo)}</td><td class="name-cell">${escapeHtml(fullName(s))}</td><td><a class="email-link" href="mailto:${escapeHtml(s.email)}">${escapeHtml(s.email)}</a></td><td><span class="age-pill">${escapeHtml(calculateAge(s.dob))}</span></td></tr>`).join('') : '<tr><td colspan="4" class="empty-state">No student registrations found.</td></tr>';
-}
-
 function renderAdminStudents() {
   const body = $('#admin-students');
   if (!body) return;
@@ -57,18 +49,15 @@ function renderAdminStudents() {
 }
 
 async function loadStudents() {
-  const publicBody = $('#public-students');
   const adminBody = $('#admin-students');
-  if (publicBody) publicBody.innerHTML = '<tr><td colspan="4" class="empty-state">Loading registrations…</td></tr>';
+  if (!adminBody) return;
   if (adminBody) adminBody.innerHTML = '<tr><td colspan="6" class="empty-state">Loading student records…</td></tr>';
   try {
     students = await request(API_URL);
-    renderPublicStudents();
     renderAdminStudents();
   } catch (error) {
-    if (publicBody) publicBody.innerHTML = '<tr><td colspan="4" class="empty-state">Could not load registrations. Check that the database is available.</td></tr>';
     if (adminBody) adminBody.innerHTML = '<tr><td colspan="6" class="empty-state">Could not load records. Check that the database is available.</td></tr>';
-    showAlert($('#public-alert') || $('#admin-alert'), error.message);
+    showAlert($('#admin-alert'), error.message);
   }
 }
 
@@ -86,14 +75,10 @@ function initRegistration() {
       form.reset();
       dob.max = new Date().toISOString().slice(0, 10);
       showAlert($('#public-alert'), 'Registration submitted successfully.', 'success');
-      await loadStudents();
-      $('#student-list').scrollIntoView({behavior:'smooth', block:'start'});
     } catch (error) {
       showAlert($('#public-alert'), error.message || 'Could not submit registration.');
     }
   });
-  $('#public-search')?.addEventListener('input', renderPublicStudents);
-  loadStudents();
 }
 
 function initLogin() {

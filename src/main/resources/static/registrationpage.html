@@ -9,9 +9,9 @@
 </head>
 <body class="academy-shell">
   <div class="app-frame">
-    <header class="topbar"><a class="brand" href="/registrationpage.html"><span class="brand-mark">◆</span> Easy Academy</a><div class="topbar-right"><span class="topbar-note">Student admissions</span><a class="admin-link" href="/loginpage.html">Admin sign in <span aria-hidden="true">↗</span></a></div></header>
+    <header class="topbar"><a class="brand" href="/index.html"><span class="brand-mark">◆</span> Easy Academy</a><div class="topbar-right"><a class="admin-link" href="/loginpage.html">Admin sign in <span aria-hidden="true">↗</span></a></div></header>
     <div class="workspace">
-      <aside class="sidebar"><div class="side-label">ACADEMY</div><a class="side-link" href="/registrationpage.html"><span>▦</span> Registration</a><a class="side-link active" href="#student-list"><span>♙</span> Students</a><div class="side-foot"><span class="sidebar-avatar">E</span><span><strong>Easy Academy</strong><small>Admissions portal</small></span></div></aside>
+      <aside class="sidebar"><div class="side-label">ACADEMY</div><a class="side-link active" href="/Registrationpage.html"><span>▦</span> Registration</a><a class="side-link" href="/loginpage.html"><span>♙</span> Admin records</a><div class="side-foot"><span class="sidebar-avatar">E</span><span><strong>Easy Academy</strong><small>Admissions portal</small></span></div></aside>
       <main class="main-content">
         <div class="breadcrumbs"><span>⌂</span><span>/</span><span>Students</span><span>/</span><strong>New admission</strong></div>
         <div class="title-row"><div><p class="eyebrow">STUDENT DATABASE / ADMISSION</p><h1>Students Registration</h1><p class="lede">Add a student’s personal, contact, and academic details.</p></div><span class="secure-pill"><span></span> Secure form</span></div>
@@ -30,24 +30,25 @@
             <div class="field-grid two-col">
               <label class="field"><span>Email address <b>*</b></span><input class="control" id="email" name="email" type="email" autocomplete="email" placeholder="student@example.com" required></label>
               <label class="field"><span>Phone number <b>*</b></span><input class="control" id="phoneNumber" name="phoneNumber" type="tel" autocomplete="tel" placeholder="+91 98765 43210" required></label>
-              <label class="field full-width"><span>Home address <b>*</b></span><textarea class="control" id="address" name="address" rows="3" autocomplete="street-address" placeholder="Street, city, state, postal code" required></textarea></label>
             </div>
           </section>
-          <section class="form-section"><div class="section-heading"><span class="section-dot">03</span><div><h2>Academic information</h2><p>Admission and previous education details.</p></div></div>
+          <section class="form-section"><div class="section-heading"><span class="section-dot">03</span><div><h2>Address</h2><p>Student’s current residential address.</p></div></div>
+            <div class="field-grid"><label class="field"><span>Home address <b>*</b></span><textarea class="control" id="address" name="address" rows="3" autocomplete="street-address" placeholder="Street, city, state, postal code" required></textarea></label></div>
+          </section>
+          <section class="form-section"><div class="section-heading"><span class="section-dot">04</span><div><h2>Academic information</h2><p>College and admission details.</p></div></div>
             <div class="field-grid two-col">
               <label class="field"><span>College name <b>*</b></span><input class="control" id="collegeName" name="collegeName" placeholder="College or institute" required></label>
               <label class="field"><span>Course name <b>*</b></span><input class="control" id="courseName" name="courseName" placeholder="e.g. Bachelor of Science" required></label>
               <label class="field"><span>Field / Branch <b>*</b></span><input class="control" id="branchName" name="branchName" placeholder="e.g. Computer Science" required></label>
               <label class="field"><span>Date of admission <b>*</b></span><input class="control" id="admissionDate" name="admissionDate" type="date" required></label>
-              <label class="field full-width"><span>Previous educational details <b>*</b></span><textarea class="control" id="previousEducation" name="previousEducation" rows="3" placeholder="Qualification, institution, year, grades…" required></textarea></label>
             </div>
+          </section>
+          <section class="form-section"><div class="section-heading"><span class="section-dot">05</span><div><h2>Previous educational details</h2><p>Record the student’s previous qualification and results.</p></div></div>
+            <div class="field-grid"><label class="field"><span>Previous education <b>*</b></span><textarea class="control" id="previousEducation" name="previousEducation" rows="3" placeholder="Qualification, institution, year, grades…" required></textarea></label></div>
           </section>
           <div class="form-actions"><p><b>*</b> Required fields</p><button class="primary-button" type="submit">Submit registration <span aria-hidden="true">→</span></button></div>
         </form>
-        <section class="public-list" id="student-list"><div class="list-header"><div><p class="eyebrow">ENROLLED STUDENTS</p><h2>Registration list</h2><p class="list-subtitle">A quick view of current registrations.</p></div><label class="search-field"><span aria-hidden="true">⌕</span><input id="public-search" type="search" placeholder="Search students"></label></div>
-          <div class="table-wrap"><table><thead><tr><th>ROLL NUMBER</th><th>STUDENT NAME</th><th>EMAIL ADDRESS</th><th>AGE</th></tr></thead><tbody id="public-students"><tr><td colspan="4" class="empty-state">Loading registrations…</td></tr></tbody></table></div>
-        </section>
-        <footer class="page-footer">© Easy Academy <span>Student admissions portal</span></footer>
+        <footer class="page-footer">© Easy Academy <span><a href="/index.html">Home</a> · <a href="/loginpage.html">Admin login</a></span></footer>
       </main>
     </div>
   </div>
