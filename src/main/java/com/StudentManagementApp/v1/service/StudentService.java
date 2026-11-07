@@ -33,9 +33,17 @@ public class StudentService {
         Student existingStudent = repo.findById(rollNo)
                 .orElseThrow(() -> new StudentNotFoundException(rollNo));
 
-        existingStudent.setName(updatedStudent.getName());
+        existingStudent.setFirstName(updatedStudent.getFirstName());
+        existingStudent.setLastName(updatedStudent.getLastName());
         existingStudent.setEmail(updatedStudent.getEmail());
-        existingStudent.setCourse(updatedStudent.getCourse());
+        existingStudent.setPhoneNumber(updatedStudent.getPhoneNumber());
+        existingStudent.setDob(updatedStudent.getDob());
+        existingStudent.setCollegeName(updatedStudent.getCollegeName());
+        existingStudent.setCourseName(updatedStudent.getCourseName());
+        existingStudent.setBranchName(updatedStudent.getBranchName());
+        existingStudent.setAdmissionDate(updatedStudent.getAdmissionDate());
+        existingStudent.setAddress(updatedStudent.getAddress());
+        existingStudent.setPreviousEducation(updatedStudent.getPreviousEducation());
         return repo.save(existingStudent);
     }
 

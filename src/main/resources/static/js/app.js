@@ -1,127 +1,173 @@
 const API_URL = '/api/students';
-const studentList = document.querySelector('#student-list');
-const studentForm = document.querySelector('#student-form');
-const studentModal = new bootstrap.Modal(document.querySelector('#student-modal'));
+const $ = (selector, root = document) => root.querySelector(selector);
+const escapeHtml = value => String(value ?? '').replace(/[&<>"']/g, char => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
 let students = [];
 let editingRollNo = null;
 
 async function request(url, options = {}) {
-    const response = await fetch(url, options);
-    if (!response.ok) {
-        let message = `Request failed (${response.status})`;
-        try {
-            const body = await response.json();
-            message = body.error || Object.values(body).join(' ' ) || message;
-        } catch (_) { /* Keep the status message for non-JSON errors. */ }
-        throw new Error(message);
-    }
-    if (response.status === 204) return null;
-    return response.json();
+  const response = await fetch(url, options);
+  const contentType = response.headers.get('content-type') || '';
+  const body = contentType.includes('application/json') ? await response.json() : await response.text();
+  if (!response.ok) {
+    const message = typeof body === 'string' ? body : body.error || Object.values(body).join(' ');
+    throw new Error(message || `Request failed (${response.status})`);
+  }
+  return body;
 }
 
-function showAlert(message, type = 'danger') {
-    document.querySelector('#alert-area').innerHTML = `<div class="alert alert-${type} alert-dismissible fade show" role="alert">${escapeHtml(message)}<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>`;
+function showAlert(target, message, type = 'danger') {
+  if (!target) return;
+  target.innerHTML = `<div class="notice notice-${type}" role="status">${escapeHtml(message)}</div>`;
 }
 
-function escapeHtml(value) {
-    return String(value ?? '').replace(/[&<>"']/g, character => ({
-        '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
-    })[character]);
+function calculateAge(dob) {
+  if (!dob) return '—';
+  const birth = new Date(`${dob}T00:00:00`);
+  if (Number.isNaN(birth.getTime())) return '—';
+  const today = new Date();
+  let age = today.getFullYear() - birth.getFullYear();
+  const month = today.getMonth() - birth.getMonth();
+  if (month < 0 || (month === 0 && today.getDate() < birth.getDate())) age--;
+  return age >= 0 ? `${age} yrs` : '—';
 }
 
-function renderStudents() {
-    const search = document.querySelector('#search-input').value.trim().toLowerCase();
-    const course = document.querySelector('#course-filter').value.trim().toLowerCase();
-    const filtered = students.filter(student =>
-        [student.rollNo, student.name, student.email, student.course].some(value => String(value ?? '').toLowerCase().includes(search)) &&
-        String(student.course ?? '').toLowerCase().includes(course)
-    );
+function fullName(student) {
+  return student.name || [student.firstName, student.lastName].filter(Boolean).join(' ');
+}
 
-    if (!filtered.length) {
-        studentList.innerHTML = '<tr><td colspan="5" class="text-center text-secondary py-4">No students found.</td></tr>';
-        return;
-    }
+function renderPublicStudents() {
+  const body = $('#public-students');
+  if (!body) return;
+  const query = ($('#public-search')?.value || '').trim().toLowerCase();
+  const filtered = students.filter(s => [s.rollNo, fullName(s), s.email].some(v => String(v ?? '').toLowerCase().includes(query)));
+  body.innerHTML = filtered.length ? filtered.map(s => `<tr><td class="roll-cell">${escapeHtml(s.rollNo)}</td><td class="name-cell">${escapeHtml(fullName(s))}</td><td><a class="email-link" href="mailto:${escapeHtml(s.email)}">${escapeHtml(s.email)}</a></td><td><span class="age-pill">${escapeHtml(calculateAge(s.dob))}</span></td></tr>`).join('') : '<tr><td colspan="4" class="empty-state">No student registrations found.</td></tr>';
+}
 
-    studentList.innerHTML = filtered.map(student => `
-        <tr>
-            <td>${escapeHtml(student.rollNo)}</td>
-            <td class="fw-medium">${escapeHtml(student.name)}</td>
-            <td>${escapeHtml(student.email)}</td>
-            <td><span class="badge text-bg-light">${escapeHtml(student.course)}</span></td>
-            <td class="text-end text-nowrap">
-                <button class="btn btn-sm btn-outline-primary me-1" data-action="edit" data-roll="${escapeHtml(student.rollNo)}">Edit</button>
-                <button class="btn btn-sm btn-outline-danger" data-action="delete" data-roll="${escapeHtml(student.rollNo)}">Delete</button>
-            </td>
-        </tr>`).join('');
+function renderAdminStudents() {
+  const body = $('#admin-students');
+  if (!body) return;
+  const query = ($('#admin-search')?.value || '').trim().toLowerCase();
+  const filtered = students.filter(s => [s.rollNo, fullName(s), s.email, s.phoneNumber, s.collegeName, s.courseName, s.branchName].some(v => String(v ?? '').toLowerCase().includes(query)));
+  $('#student-count').textContent = String(students.length);
+  body.innerHTML = filtered.length ? filtered.map(s => `<tr>
+    <td class="roll-cell">${escapeHtml(s.rollNo)}</td><td><strong class="name-cell">${escapeHtml(fullName(s))}</strong><small class="sub-cell">${escapeHtml(s.branchName)}</small></td>
+    <td><a class="email-link" href="mailto:${escapeHtml(s.email)}">${escapeHtml(s.email)}</a><small class="sub-cell">${escapeHtml(s.phoneNumber)}</small></td>
+    <td><span class="name-cell">${escapeHtml(s.collegeName)}</span><small class="sub-cell">${escapeHtml(s.courseName)}</small></td><td><span class="age-pill">${escapeHtml(calculateAge(s.dob))}</span></td>
+    <td class="actions-cell"><button class="icon-action" data-action="edit" data-roll="${escapeHtml(s.rollNo)}" aria-label="Edit ${escapeHtml(fullName(s))}" title="Edit">✎</button><button class="icon-action delete-action" data-action="delete" data-roll="${escapeHtml(s.rollNo)}" aria-label="Delete ${escapeHtml(fullName(s))}" title="Delete">⌫</button></td></tr>`).join('') : '<tr><td colspan="6" class="empty-state">No student records found.</td></tr>';
 }
 
 async function loadStudents() {
-    studentList.innerHTML = '<tr><td colspan="5" class="text-center text-secondary py-4">Loading students…</td></tr>';
-    try {
-        students = await request(API_URL);
-        renderStudents();
-    } catch (error) {
-        studentList.innerHTML = '<tr><td colspan="5" class="text-center text-secondary py-4">Could not load students.</td></tr>';
-        showAlert(`${error.message}. Check that the database is available.`);
-    }
+  const publicBody = $('#public-students');
+  const adminBody = $('#admin-students');
+  if (publicBody) publicBody.innerHTML = '<tr><td colspan="4" class="empty-state">Loading registrations…</td></tr>';
+  if (adminBody) adminBody.innerHTML = '<tr><td colspan="6" class="empty-state">Loading student records…</td></tr>';
+  try {
+    students = await request(API_URL);
+    renderPublicStudents();
+    renderAdminStudents();
+  } catch (error) {
+    if (publicBody) publicBody.innerHTML = '<tr><td colspan="4" class="empty-state">Could not load registrations. Check that the database is available.</td></tr>';
+    if (adminBody) adminBody.innerHTML = '<tr><td colspan="6" class="empty-state">Could not load records. Check that the database is available.</td></tr>';
+    showAlert($('#public-alert') || $('#admin-alert'), error.message);
+  }
 }
 
-function openForm(student = null) {
-    studentForm.reset();
-    editingRollNo = student?.rollNo ?? null;
-    document.querySelector('#dialog-title').textContent = student ? 'Edit student' : 'Add student';
-    document.querySelector('#save-button').textContent = student ? 'Save changes' : 'Save student';
-    document.querySelector('#rollno-group').classList.toggle('d-none', Boolean(student));
-    document.querySelector('#student-rollno').required = !student;
-    if (student) {
-        studentForm.elements.name.value = student.name;
-        studentForm.elements.email.value = student.email;
-        studentForm.elements.course.value = student.course;
-    }
-    studentModal.show();
-}
-
-document.querySelector('#add-student-button').addEventListener('click', () => openForm());
-document.querySelector('#search-input').addEventListener('input', renderStudents);
-document.querySelector('#course-filter').addEventListener('input', renderStudents);
-
-studentForm.addEventListener('submit', async event => {
+function initRegistration() {
+  const form = $('#registration-form');
+  if (!form) return;
+  const dob = $('#dob');
+  dob.max = new Date().toISOString().slice(0, 10);
+  form.addEventListener('submit', async event => {
     event.preventDefault();
-    const payload = {
-        rollNo: editingRollNo ?? Number(studentForm.elements.rollNo.value),
-        name: studentForm.elements.name.value.trim(),
-        email: studentForm.elements.email.value.trim(),
-        course: studentForm.elements.course.value.trim()
-    };
-    const url = editingRollNo === null ? API_URL : `${API_URL}/${editingRollNo}`;
-    const method = editingRollNo === null ? 'POST' : 'PUT';
+    const payload = Object.fromEntries(new FormData(form).entries());
+    payload.rollNo = Number(payload.rollNo);
     try {
-        await request(url, { method, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
-        studentModal.hide();
-        showAlert(editingRollNo === null ? 'Student added successfully.' : 'Student updated successfully.', 'success');
-        await loadStudents();
+      await request(API_URL, {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(payload)});
+      form.reset();
+      dob.max = new Date().toISOString().slice(0, 10);
+      showAlert($('#public-alert'), 'Registration submitted successfully.', 'success');
+      await loadStudents();
+      $('#student-list').scrollIntoView({behavior:'smooth', block:'start'});
     } catch (error) {
-        showAlert(error.message);
+      showAlert($('#public-alert'), error.message || 'Could not submit registration.');
     }
-});
+  });
+  $('#public-search')?.addEventListener('input', renderPublicStudents);
+  loadStudents();
+}
 
-studentList.addEventListener('click', async event => {
+function initLogin() {
+  const form = $('#login-form');
+  if (!form) return;
+  if (sessionStorage.getItem('easy-academy-admin') === 'true') window.location.replace('/studentdetailsmanagement.html');
+  form.addEventListener('submit', event => {
+    event.preventDefault();
+    const username = $('#username').value;
+    const password = $('#password').value;
+    if (username === 'Admin' && password === 'Admin') {
+      sessionStorage.setItem('easy-academy-admin', 'true');
+      window.location.href = '/studentdetailsmanagement.html';
+    } else showAlert($('#login-alert'), 'The username or password is incorrect.');
+  });
+}
+
+const editFields = [
+  ['rollNo','Roll number','number'],['firstName','First name','text'],['lastName','Last name','text'],['dob','Date of birth','date'],
+  ['email','Email address','email'],['phoneNumber','Phone number','tel'],['address','Home address','textarea'],
+  ['collegeName','College name','text'],['courseName','Course name','text'],['branchName','Field / Branch','text'],['admissionDate','Date of admission','date'],['previousEducation','Previous educational details','textarea']
+];
+
+function openEdit(student) {
+  editingRollNo = student.rollNo;
+  const container = $('#edit-fields');
+  container.innerHTML = editFields.map(([key,label,type]) => {
+    const wide = ['address','previousEducation'].includes(key) ? ' full-width' : '';
+    const value = escapeHtml(student[key] ?? '');
+    const input = type === 'textarea' ? `<textarea class="control" id="edit-${key}" name="${key}" rows="3" required>${value}</textarea>` : `<input class="control" id="edit-${key}" name="${key}" type="${type}" value="${value}" ${key === 'rollNo' ? 'readonly' : ''} ${type === 'number' ? 'min="1"' : ''} required>`;
+    return `<label class="field${wide}"><span>${label}</span>${input}</label>`;
+  }).join('');
+  $('#edit-modal').classList.remove('d-none');
+  document.body.classList.add('modal-open');
+  $('#edit-firstName').focus();
+}
+
+function closeEdit() {
+  $('#edit-modal')?.classList.add('d-none');
+  document.body.classList.remove('modal-open');
+}
+
+function initAdmin() {
+  if (!$('#admin-students')) return;
+  if (sessionStorage.getItem('easy-academy-admin') !== 'true') {
+    window.location.replace('/loginpage.html');
+    return;
+  }
+  $('#logout-button')?.addEventListener('click', () => { sessionStorage.removeItem('easy-academy-admin'); window.location.href = '/loginpage.html'; });
+  $('#admin-search')?.addEventListener('input', renderAdminStudents);
+  $('#admin-students').addEventListener('click', async event => {
     const button = event.target.closest('button[data-action]');
     if (!button) return;
-    const student = students.find(item => String(item.rollNo) === button.dataset.roll);
+    const student = students.find(s => String(s.rollNo) === button.dataset.roll);
     if (!student) return;
-    if (button.dataset.action === 'edit') {
-        openForm(student);
-        return;
-    }
-    if (!window.confirm(`Delete ${student.name}?`)) return;
-    try {
-        await request(`${API_URL}/${student.rollNo}`, { method: 'DELETE' });
-        showAlert('Student deleted successfully.', 'success');
-        await loadStudents();
-    } catch (error) {
-        showAlert(error.message);
-    }
-});
+    if (button.dataset.action === 'edit') { openEdit(student); return; }
+    if (!window.confirm(`Delete the record for ${fullName(student)} (roll ${student.rollNo})?`)) return;
+    try { await request(`${API_URL}/${student.rollNo}`, {method:'DELETE'}); showAlert($('#admin-alert'), 'Student record deleted.', 'success'); await loadStudents(); }
+    catch (error) { showAlert($('#admin-alert'), error.message); }
+  });
+  $('#close-edit').addEventListener('click', closeEdit);
+  $('#cancel-edit').addEventListener('click', closeEdit);
+  $('#edit-modal').addEventListener('click', event => { if (event.target.id === 'edit-modal') closeEdit(); });
+  document.addEventListener('keydown', event => { if (event.key === 'Escape') closeEdit(); });
+  $('#edit-form').addEventListener('submit', async event => {
+    event.preventDefault();
+    const payload = Object.fromEntries(new FormData(event.currentTarget).entries());
+    payload.rollNo = Number(payload.rollNo);
+    try { await request(`${API_URL}/${editingRollNo}`, {method:'PUT', headers:{'Content-Type':'application/json'}, body:JSON.stringify(payload)}); closeEdit(); showAlert($('#admin-alert'), 'Student details updated.', 'success'); await loadStudents(); }
+    catch (error) { showAlert($('#admin-alert'), error.message); }
+  });
+  loadStudents();
+}
 
-loadStudents();
+initRegistration();
+initLogin();
+initAdmin();
