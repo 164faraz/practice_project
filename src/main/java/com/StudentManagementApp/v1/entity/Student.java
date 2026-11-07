@@ -1,4 +1,4 @@
-package com.springdemo.project.v1.entity;
+package com.StudentManagementApp.v1.entity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -8,6 +8,7 @@ import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
+import jakarta.validation.constraints.Email;
 
 @Entity
 @Table(name = "student")
@@ -24,6 +25,15 @@ public class Student {
     @Column(name = "student_name")
     private String name;
 
+    @NotBlank(message = "Email cannot be empty")
+    @Email(message = "Email must be valid")
+    @Column(name = "email")
+    private String email;
+
+    @NotBlank(message = "Course cannot be empty")
+    @Column(name = "course")
+    private String course;
+
     public Integer getRollNo() {
         return rollNo;
     }
@@ -39,4 +49,9 @@ public class Student {
     public void setName(String name) {
         this.name = name;
     }
+
+    public String getEmail() { return email; }
+    public void setEmail(String email) { this.email = email; }
+    public String getCourse() { return course; }
+    public void setCourse(String course) { this.course = course; }
 }

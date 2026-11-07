@@ -1,7 +1,7 @@
-package com.springdemo.project.v1.controller;
+package com.StudentManagementApp.v1.controller;
 
-import com.springdemo.project.v1.entity.Student;
-import com.springdemo.project.v1.service.StudentService;
+import com.StudentManagementApp.v1.entity.Student;
+import com.StudentManagementApp.v1.service.StudentService;
 import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 
 @RestController
-@RequestMapping("/students")
+@RequestMapping("/api/students")
 public class StudentController {
 
     private final StudentService service;

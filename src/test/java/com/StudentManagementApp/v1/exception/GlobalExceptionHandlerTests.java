@@ -1,4 +1,4 @@
-package com.springdemo.project.v1.exception;
+package com.StudentManagementApp.v1.exception;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;

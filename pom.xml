@@ -12,14 +12,14 @@
 		<relativePath/>
 	</parent>
 
-	<groupId>com.springdemo.project</groupId>
-	<artifactId>v1</artifactId>
+	<groupId>com.StudentManagementApp</groupId>
+	<artifactId>student-management</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>v1</name>
-	<description>Spring Boot JPA demo</description>
+	<name>student-management</name>
+	<description>Student management application</description>
 
 	<properties>
-		<java.version>25</java.version>
+		<java.version>17</java.version>
 	</properties>
 
 	<dependencies>

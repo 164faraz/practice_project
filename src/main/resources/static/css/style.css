@@ -1,0 +1,32 @@
+body {
+    min-height: 100vh;
+    background: #f5f7fb;
+}
+
+.navbar {
+    background: linear-gradient(110deg, #155eef, #356df3) !important;
+}
+
+.card {
+    border-radius: 0.85rem;
+}
+
+.table thead th {
+    padding-top: 0.9rem;
+    padding-bottom: 0.9rem;
+    color: #475467;
+    font-size: 0.8rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+
+.table tbody td {
+    padding-top: 0.85rem;
+    padding-bottom: 0.85rem;
+}
+
+.modal-content {
+    border: 0;
+    border-radius: 0.9rem;
+}

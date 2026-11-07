@@ -1,8 +1,8 @@
-package com.springdemo.project.v1.service;
+package com.StudentManagementApp.v1.service;
 
-import com.springdemo.project.v1.entity.Student;
-import com.springdemo.project.v1.exception.StudentNotFoundException;
-import com.springdemo.project.v1.repository.StudentRepository;
+import com.StudentManagementApp.v1.entity.Student;
+import com.StudentManagementApp.v1.exception.StudentNotFoundException;
+import com.StudentManagementApp.v1.repository.StudentRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -34,6 +34,8 @@ public class StudentService {
                 .orElseThrow(() -> new StudentNotFoundException(rollNo));
 
         existingStudent.setName(updatedStudent.getName());
+        existingStudent.setEmail(updatedStudent.getEmail());
+        existingStudent.setCourse(updatedStudent.getCourse());
         return repo.save(existingStudent);
     }
 
