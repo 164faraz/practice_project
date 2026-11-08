@@ -26,7 +26,7 @@ public class StudentService {
     }
 
     public Student saveNewEntryOfStudent(Student student) {
-        return repo.save(student);
+        return repo.saveAndFlush(student);
     }
 
     public Student updateStudentRecord(Integer rollNo, Student updatedStudent) {

@@ -45,7 +45,7 @@ function renderAdminStudents() {
     <td class="roll-cell">${escapeHtml(s.rollNo)}</td><td><strong class="name-cell">${escapeHtml(fullName(s))}</strong><small class="sub-cell">${escapeHtml(s.branchName)}</small></td>
     <td><a class="email-link" href="mailto:${escapeHtml(s.email)}">${escapeHtml(s.email)}</a><small class="sub-cell">${escapeHtml(s.phoneNumber)}</small></td>
     <td><span class="name-cell">${escapeHtml(s.collegeName)}</span><small class="sub-cell">${escapeHtml(s.courseName)}</small></td><td><span class="age-pill">${escapeHtml(calculateAge(s.dob))}</span></td>
-    <td class="actions-cell"><button class="icon-action" data-action="edit" data-roll="${escapeHtml(s.rollNo)}" aria-label="Edit ${escapeHtml(fullName(s))}" title="Edit">✎</button><button class="icon-action delete-action" data-action="delete" data-roll="${escapeHtml(s.rollNo)}" aria-label="Delete ${escapeHtml(fullName(s))}" title="Delete">⌫</button></td></tr>`).join('') : '<tr><td colspan="6" class="empty-state">No student records found.</td></tr>';
+    <td><div class="actions-cell"><button type="button" class="row-action edit-action" data-action="edit" data-roll="${escapeHtml(s.rollNo)}" aria-label="Edit ${escapeHtml(fullName(s))}" title="Edit student"><span aria-hidden="true">✎</span><span>Edit</span></button><button type="button" class="row-action delete-action" data-action="delete" data-roll="${escapeHtml(s.rollNo)}" aria-label="Delete ${escapeHtml(fullName(s))}" title="Delete student"><span aria-hidden="true">⌫</span><span>Delete</span></button></div></td></tr>`).join('') : '<tr><td colspan="6" class="empty-state">No student records found. Edit and delete actions appear here when records are available.</td></tr>';
 }
 
 async function loadStudents() {

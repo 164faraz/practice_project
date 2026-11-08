@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
+import org.springframework.dao.DataAccessException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,6 +34,13 @@ public class GlobalExceptionHandler {
         Map<String, String> error = new LinkedHashMap<>();
         error.put("error", ex.getMessage());
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
+    }
+
+    @ExceptionHandler(DataAccessException.class)
+    public ResponseEntity<Map<String, String>> handleDatabaseError(DataAccessException ex) {
+        logger.error("Student database request failed", ex);
+        return error(HttpStatus.SERVICE_UNAVAILABLE,
+                "Student database is unavailable. Check that MySQL is running and the database settings are correct.");
     }
 
     @ExceptionHandler(Exception.class)
